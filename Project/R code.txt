@@ -1,0 +1,40 @@
+install.packages("rJava")
+install.packages("jiebaR")
+install.packages("wordcloud2")
+install.packages("tmcn")
+library(devtools)
+library(tm)
+library(jiebaRD)
+library(jiebaR)
+
+library(tmcn)
+library(NLP)
+library(wordcloud2)
+
+report <- scan(file = 'D:/UMD/Data Analytics/Project/text mining/sampleTEXTdata.csv', what = '', encoding = 'UTF-8')
+head(report)
+
+#remove html links
+report <- gsub("(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", " ", report)
+# Then remove all "#Hashtag"
+report = gsub("#\\w+", " ", report)
+# Then remove all the punctuation
+report = gsub("[[:punct:]]", " ", report)
+#Then remove numbers, we need only text for analytics
+report = gsub("[[:digit:]]", " ", report)
+#finally, we remove unnecessary spaces (white spaces, tabs etc)
+report = gsub("[ \t]{2,}", " ", report)
+report = gsub("^\\s+|\\s+$", "", report)
+#delete blank strings and retweet rows
+report <- report[!report %in% c("","RT")]
+
+head(report, n=3)
+library(tm)
+report <- VCorpus(VectorSource(report))
+report <- tm_map(report, content_transformer(tolower))
+#remove stop words
+report <- tm_map(report, removeWords, stopwords())
+lapply(report[1:100], as.character)
+library(wordcloud)
+par(mar=c(1,1,1,1))
+wordcloud(report, min.freq = 3, random.order = FALSE)
